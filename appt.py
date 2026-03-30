@@ -338,10 +338,9 @@ elif selected_board == "商户利润看板":
         df["毛交易额"] = pd.to_numeric(df["毛交易额"], errors='coerce').fillna(0).astype(float)
         df["估算成本"] = pd.to_numeric(df["估算成本"], errors='coerce').fillna(0).astype(float)
         df["当月利润"] = pd.to_numeric(df["利润"], errors='coerce').fillna(0).astype(float)
-        df["结算金额"] = pd.to_numeric(df.get("结算金额", df["毛交易额"]), errors='coerce').fillna(0).astype(float)
         # 利润率：用全局函数锁死，除数为0返回0.00
         df["利润率(%)"] = np.where(
-            df["结算金额"] != 0,
+            df["毛交易额"] != 0,
             (df["当月利润"] / df["毛交易额"] * 100).apply(fmt_2f),
             fmt_2f(0)
         )
