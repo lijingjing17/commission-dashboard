@@ -116,13 +116,16 @@ if selected_board == "商户抽佣经营看板":
     total_transaction_wan = (total_transaction / 10000).round(2)
     total_commission_wan = (total_commission / 10000).round(2)
 
-    col1, col2, col3, col4, col5 = st.columns(5, gap="large")
+    col1, col2, col3 = st.columns(3, gap="large")
     with col1:
-        st.metric("总订单量", f"{total_orders:,} 笔")
+        st.metric("总订单量", f"{total_orders // 10000} 万笔")
     with col2:
         st.metric("总交易额", f"{total_transaction_wan:,} 万元")
     with col3:
         st.metric("总抽佣x+y总计", f"{total_commission_wan:,} 万元")
+
+    # 第二行 2 个指标（居中显示）
+    col4, col5, _ = st.columns(3, gap="large")
     with col4:
         st.metric("平均抽佣比率", f"{avg_commission_rate:.2f}%")
     with col5:
@@ -229,7 +232,7 @@ if selected_board == "商户抽佣经营看板":
     st.divider()
 
     # ======================== 商户分析 ========================
-    st.subheader("📈 商户抽佣明细分析")
+    st.subheader("📈 熠威商户抽佣明细分析")
     with st.expander("核心洞察", expanded=True):
         total_c = df_merchant["抽佣x+y总计"].sum()
         total_b = df_merchant["商户抽佣基数"].sum()
@@ -249,14 +252,18 @@ if selected_board == "商户抽佣经营看板":
             width="stretch",
             hide_index=True
         )
+    st.subheader("🏆熠威抽佣率 TOP500商户")
 
-    st.subheader("🏆 抽佣率 TOP50 商户")
-    top50 = df_merchant.nlargest(50,"抽佣比率")[["区县名称","业务线","商户名称","抽佣比率(%)","抽佣x+y总计","商户抽佣基数"]]
-    
+    # 取 TOP500
+    top500 = df_merchant.nlargest(500, "抽佣比率")[
+        ["区县名称","业务线","商户名称","抽佣比率(%)","抽佣x+y总计","商户抽佣基数"]
+    ].sort_values("抽佣比率(%)", ascending=False)
+
+    # 展示
     st.dataframe(
-        top50,
-        width="stretch",
-        hide_index=True
+        top500,
+        hide_index=True,
+        use_container_width=True
     )
 
     st.subheader("🔍 FML 业务线抽佣率 <23% 商户")
