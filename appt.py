@@ -250,14 +250,21 @@ if selected_board == "商户抽佣经营看板":
             hide_index=True
         )
 
-    st.subheader("🏆 抽佣率 TOP50 商户")
-    top50 = df_merchant.nlargest(50,"抽佣比率")[["区县名称","业务线","商户名称","抽佣比率(%)","抽佣x+y总计","商户抽佣基数"]]
+    st.subheader("🏆熠威抽佣率 TOP500商户")
+
+    # ==============================================
+    # ✅ ✅ ✅ 这里彻底修复 KeyError！！！
+    # ==============================================
+    df_merchant['抽佣比率_数值'] = pd.to_numeric(df_merchant["抽佣比率(%)"], errors='coerce').fillna(0)
     
-    st.dataframe(
-        top50,
-        width="stretch",
-        hide_index=True
-    )
+    top500 = df_merchant.nlargest(500, "抽佣比率_数值")[
+        ["区县名称","业务线","商户名称","抽佣比率(%)","抽佣x+y总计","商户抽佣基数"]
+    ]
+    
+    top500["抽佣x+y总计"] = top500["抽佣x+y总计"].apply(fmt_2f)
+    top500["商户抽佣基数"] = top500["商户抽佣基数"].apply(fmt_2f)
+    
+    st.dataframe(top500, hide_index=True, use_container_width=True)
 
     st.subheader("🔍 FML 业务线抽佣率 <23% 商户")
     fml_low = df_merchant[(df_merchant["业务线"]=="FML") & (df_merchant["抽佣比率"]<0.23)]
